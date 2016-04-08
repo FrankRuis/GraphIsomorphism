@@ -1,5 +1,24 @@
-from debugging.utils import time_this, is_tree
+from debugging.utils import time_this
 from isomorphism.graph import Graph, Vertex
+
+
+def is_tree(graph):
+    """
+    Use depth first search to find cycles.
+    If the graph does not contain a cycle, the graph is a tree.
+    """
+    if not len(graph) - 1 == len(graph.edges):
+        return False
+
+    visited, stack = set(), [graph[0]]
+    while stack:
+        vertex = stack.pop()
+        if vertex not in visited:
+            visited.add(vertex)
+            stack.extend(vertex.nbs - visited)
+        else:
+            return False
+    return len(visited) == len(graph)
 
 
 def get_center(tree):

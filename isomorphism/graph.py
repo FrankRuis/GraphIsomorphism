@@ -1,4 +1,4 @@
-from debugging.utils import connected_components, time_this
+from debugging.utils import connected_components, time_this, is_tree
 import ast
 
 
@@ -14,11 +14,15 @@ class Graph(list):
                     for w in v.nbs:
                         self.add_edge(v, w)
                     v.graph = self
+        else:
+            self.edges = e
         self._connected_components = None
+        self._complete = None
+        self._tree = None
 
     def append(self, p_object):
-        if p_object not in self:
-            super(Graph, self).append(p_object)
+        p_object.id = len(self)
+        super(Graph, self).append(p_object)
 
     def add_edge(self, v, w):
         v.add_edge(w)
@@ -41,17 +45,34 @@ class Graph(list):
 
         return self._connected_components
 
+    @property
+    def complete(self):
+        if self._complete is None:
+            if (len(self) * (len(self) - 1)) / 2 == len(self.edges):
+                self._complete = all(map(lambda v: len(v.nbs) == len(v.graph) - 1, self))
+            else:
+                self._complete = False
+
+        return self._complete
+
+    @property
+    def tree(self):
+        if self._tree is None:
+            self._tree = is_tree(self)
+
+        return self._tree
+
     def dot(self, name):
         path = '../output/{:s}.dot'.format(name)
         with open(path, 'w+') as file:
             file.write('Graph {\n')
             for i, v in enumerate(self):
-                file.write('\t{:d} [penwidth=3, label="{:d}"]\n'.format(i, v.label))
+                file.write('\t{:d} [penwidth=3, label="{}"]\n'.format(i, v.label))
 
             file.write('\n')
 
             for e in self.edges:
-                file.write('\t{}--{} [penwidth=2]\n'.format(e[0], e[1]))
+                file.write('\t{}--{} [penwidth=2]\n'.format(e[0].id, e[1].id))
 
             file.write('}')
 
@@ -120,7 +141,7 @@ class Vertex:
         return self.label < other.label
 
     def __repr__(self):
-        return str(self.id)
+        return str(self.label)
 
 if __name__ == '__main__':
     h = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\basicAut1.gr')

@@ -52,6 +52,9 @@ def is_tree(graph):
     Use depth first search to find cycles.
     If the graph does not contain a cycle, the graph is a tree.
     """
+    if not len(graph) - 1 == len(graph.edges):
+        return False
+
     visited, stack = set(), [graph[0]]
     while stack:
         vertex = stack.pop()
