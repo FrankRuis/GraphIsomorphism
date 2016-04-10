@@ -1,6 +1,7 @@
 from isomorphism.graph import Graph
 from debugging.utils import time_this, connected_components, is_tree, time
 from isomorphism.color_refinement import count_isomorphisms, disjoint_union
+import ast
 
 
 @time_this
@@ -20,4 +21,5 @@ def test():
         break
 
 if __name__ == '__main__':
-    test()
+    # test()
+    print(sorted([[1, 1, 2], [2, 1]]))

@@ -60,7 +60,7 @@ def get_root(tree):
 
     if len(center) == 2:
         tree.remove_edge(center[0], center[1])
-        n = Vertex(len(g))
+        n = Vertex(len(tree))
         tree.append(n)
         tree.add_edge(center[0], n)
         tree.add_edge(center[1], n)
@@ -108,20 +108,42 @@ def tree_isomorphism(t1, t2):
     for i in range(len(levels_t1) - 1, -1, -1):
         for v in levels_t1[i]:
             if v.deg() == 1:
-                v.str = '10'
+                v.str = '0'
             else:
-                v.str = '1{}0'.format(''.join(sorted([c.str for c in v.nbs if c.label > v.label])))
+                v.str = ''.join(sorted([c.str for c in v.nbs if c.label > v.label]))
 
         for v in levels_t2[i]:
             if v.deg() == 1:
-                v.str = '10'
+                v.str = '0'
             else:
-                v.str = '1{}0'.format(''.join(sorted([c.str for c in v.nbs if c.label > v.label])))
+                v.str = ''.join(sorted([c.str for c in v.nbs if c.label > v.label]))
 
-        l1 = sorted((v for v in levels_t1[i]), key=lambda x: x.str)
-        l2 = sorted((v for v in levels_t2[i]), key=lambda x: x.str)
+        levels_t1[i] = sorted([v for v in levels_t1[i]], key=lambda x: x.str)
+        levels_t2[i] = sorted([v for v in levels_t2[i]], key=lambda x: x.str)
+        l1 = [v.str for v in levels_t1[i]]
+        l2 = [v.str for v in levels_t2[i]]
+        print(l1)
+        print(l2)
         if not l1 == l2:
             return False
+
+        n = 1
+        prev = None
+        for v in levels_t1[i]:
+            if prev is None or v.str == prev:
+                prev, v.str = v.str, str(bin(n))[2:]
+            else:
+                n += 1
+                prev, v.str = v.str, str(bin(n))[2:]
+
+        n = 1
+        prev = None
+        for v in levels_t2[i]:
+            if prev is None or v.str == prev:
+                prev, v.str = v.str, str(bin(n))[2:]
+            else:
+                n += 1
+                prev, v.str = v.str, str(bin(n))[2:]
 
     return True
 
@@ -133,6 +155,7 @@ def tree_automorphisms(tree):
     Label vertices from the bottom level to the top level.
     Count the number of automorphisms of the tree.
     """
+    # TODO Worst case is still in O(n^2) because sorting strings takes n log n * |s| comparisons
     root = get_root(tree)
     levels = assign_levels(root)
 
@@ -141,11 +164,20 @@ def tree_automorphisms(tree):
     for i in range(len(levels) - 1, -1, -1):
         for v in levels[i]:
             if v.deg() == 1:
-                v.str = '10'
+                v.str = '0'
             else:
-                v.str = '1{}0'.format(''.join(sorted([c.str for c in v.nbs if c.label > v.label])))
+                v.str = ''.join(sorted([c.str for c in v.nbs if c.label > v.label]))
 
         levels[i] = sorted([v for v in levels[i]], key=lambda x: x.str)
+
+        n = 1
+        prev = None
+        for v in levels[i]:
+            if prev is None or v.str == prev:
+                prev, v.str = v.str, str(n)
+            else:
+                n += 1
+                prev, v.str = v.str, str(n)
 
     # Use breadth-first search starting from the root vertex to count the number of isomorphic subtrees.
     # Add the resulting counts to a list.
@@ -174,7 +206,15 @@ def tree_automorphisms(tree):
     return count
 
 if __name__ == '__main__':
-    graphs = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\bonusAut2.gr')
-
-    g = graphs[0]
-    print(tree_automorphisms(g))
+    # graphs = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\bigtrees3.grl')
+    # t = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\bonusAut2.gr')[0]
+    # t.dot('bonus2')
+    #
+    # g = graphs[3]
+    # print(tree_automorphisms(t))
+    # print(tree_isomorphism(graphs[3], graphs[1]))
+    t1 = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\bigtrees3.grl')[0]
+    t2 = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\bigtrees3.grl')[0]
+    print(tree_isomorphism(t1, t2))
+    print(tree_automorphisms(t1))
+    t1.dot('test')

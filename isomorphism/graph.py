@@ -67,7 +67,7 @@ class Graph(list):
         with open(path, 'w+') as file:
             file.write('Graph {\n')
             for i, v in enumerate(self):
-                file.write('\t{:d} [penwidth=3, label="{}"]\n'.format(i, v.label))
+                file.write('\t{:d} [penwidth=3, label="{}"]\n'.format(i, v.str))
 
             file.write('\n')
 

@@ -110,16 +110,19 @@ def count_isomorphisms(union, d=None, i=None, single=False) -> int:
 
     # Group the nodes by their color class
     colors = {}
+    gids = set()
     for v in union:
         if v.label in colors:
             colors[v.label].append(v)
         else:
             colors[v.label] = [v]
+        gids.add(v.gid)
 
     # Check if the coloring is balanced
     for color in colors:
         # Count how many vertices in the neighborhood belong to graph 0 or graph 1
         count = {}
+
         for v in colors[color]:
             if v.gid in count:
                 count[v.gid] += 1
@@ -127,7 +130,7 @@ def count_isomorphisms(union, d=None, i=None, single=False) -> int:
                 count[v.gid] = 1
 
         # If there are more vertices that belong to one graph than the other, the coloring is not balanced
-        if not count[0] == count[1]:
+        if len(count) < len(gids) or not len(set(map(lambda x: count[x] if x in count else 0, gids))) == 1:
             return 0
 
     # If every color class contains exactly two vertices, the coloring defines a bijection
@@ -143,10 +146,11 @@ def count_isomorphisms(union, d=None, i=None, single=False) -> int:
             # Set ys to the list of vertices in this color class belonging to graph 1
             ys = []
             x = None
+            color = (set(color) - set(d)) - set(i)
             for v in color:
-                if x is None and v not in d and v not in i:
+                if x is None:
                     x = v
-                elif v.gid is not x.gid and v not in d and v not in i:
+                elif v.gid is not x.gid:
                     ys.append(v)
 
             # Recursively count the number of isomorphisms by making guesses using x and y
@@ -189,8 +193,8 @@ def disjoint_union(*args):
 
 @time_this
 def main():
-    graphs = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\torus72.grl')
-    print(count_isomorphisms(disjoint_union(graphs[0], graphs[2])))
+    graphs = Graph.read_graph('C:\\Development\\PycharmProjects\\GraphIsomorphism\\graphs\\custom.gr')
+    print(count_isomorphisms(disjoint_union(graphs[0], graphs[0])))
 
 if __name__ == "__main__":
     """
